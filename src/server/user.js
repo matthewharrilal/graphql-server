@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-var UserSchema = new mongoose.Schema({
+var UserSchema = new mongoose.Schema({ // Declaring User Schema architecture of the database
   name: {
     type: String
   },

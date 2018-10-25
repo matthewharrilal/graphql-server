@@ -23,11 +23,11 @@ function getProjection (fieldASTs) {
 }
 
 var userType = new GraphQLObjectType({
-  name: 'User',
+  name: 'User', // Every attribute gets a description along with what the attribute does
   description: 'User creator',
-  fields: () => ({
+  fields: () => ({ //  Fields of the obejct
     id: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLString), // ID can not be null and is of type string
       description: 'The id of the user.',
     },
     name: {
@@ -35,14 +35,14 @@ var userType = new GraphQLObjectType({
       description: 'The name of the user.',
     },
     friends: {
-      type: new GraphQLList(userType),
+      type: new GraphQLList(userType), // Friends are an array of user objects
       description: 'The friends of the user, or an empty list if they have none.',
-      resolve: (user, params, source, fieldASTs) => {
-        var projections = getProjection(fieldASTs);
+      resolve: (user, params, source, fieldASTs) => { // Obj, Args, Context, Info
+        var projections = getProjection(fieldASTs); // Projection is a filter of attributes from db
         return User.find({
-          _id: {
+          _id: { // Resolvers are to return data wanted for the query
             // to make it easily testable
-            $in: user.friends.map((id) => id.toString())
+            $in: user.friends.map((id) => id.toString()) // Get all friends for a user
           }
         }, projections);
       },
@@ -50,27 +50,28 @@ var userType = new GraphQLObjectType({
   })
 });
 
-var schema = new GraphQLSchema({
+var schema = new GraphQLSchema({ // An example of a graph ql schema
   query: new GraphQLObjectType({
     name: 'RootQueryType',
     fields: {
-      hello: {
+      hello: { // The field hello is a string and should return hello world
         type: GraphQLString,
         resolve: function() {
-          return 'world';
+          return 'Hello World';
         }
       },
       user: {
-        type: userType,
-        args: {
+        type: userType, // Making this user attribute in the database a user type object
+        args: { // As we discussed before we fields can have arguments
           id: {
             name: 'id',
             type: new GraphQLNonNull(GraphQLString)
           }
         },
+
         resolve: (root, {id}, source, fieldASTs) => {
           var projections = getProjection(fieldASTs);
-          return User.findById(id, projections);
+          return User.findById(id, projections); // Find the user by the argument passed in
         }
       }
     }
@@ -78,7 +79,7 @@ var schema = new GraphQLSchema({
 
   // mutation
   mutation: new GraphQLObjectType({
-    name: 'Mutation',
+    name: 'Mutation', // Mutation to alter or insert data in database
     fields: {
       createUser: {
         type: userType,
