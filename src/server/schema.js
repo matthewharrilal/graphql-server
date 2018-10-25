@@ -79,7 +79,7 @@ var schema = new GraphQLSchema({ // An example of a graph ql schema
 
   // mutation
   mutation: new GraphQLObjectType({
-    name: 'Mutation', // Mutation to alter or insert data in database
+    name: 'Mutation', // Mutation to post a user to the database
     fields: {
       createUser: {
         type: userType,
@@ -92,32 +92,32 @@ var schema = new GraphQLSchema({ // An example of a graph ql schema
         resolve: (obj, {name}, source, fieldASTs) => co(function *() {
           var projections = getProjection(fieldASTs);
 
-          var user = new User();
+          var user = new User(); // Creating new user and setting name property
           user.name = name;
 
 
-          return yield user.save();
+          return yield user.save(); // Saving user to database
         })
       },
       deleteUser: {
         type: userType,
         args: {
           id: {
-            name: 'id',
+            name: 'id', // Taking the id argument to delete user
             type: new GraphQLNonNull(GraphQLString)
           }
         },
         resolve: (obj, {id}, source, fieldASTs) => co(function *() {
           var projections = getProjection(fieldASTs);
           console.log(id);
-          return yield User.findOneAndRemove({_id: id});
+          return yield User.findOneAndRemove({_id: id}); // Resolve and delete user by id
         })
       },
       updateUser: {
         type: userType,
         args: {
           id: {
-            name: 'id',
+            name: 'id', // Taking the id and the name to update existing user
             type: new GraphQLNonNull(GraphQLString)
           },
           name: {
@@ -131,12 +131,12 @@ var schema = new GraphQLSchema({ // An example of a graph ql schema
           yield User.update({
             _id: id
           }, {
-            $set: {
+            $set: { // Replaces field with specified value
               name: name
             }
           });
 
-          return yield User.findById(id, projections);
+          return yield User.findById(id, projections); // Yield newly updated user 
         })
       }
     }
